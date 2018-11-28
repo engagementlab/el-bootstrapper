@@ -1,0 +1,21 @@
+{
+  "name": "el-bootstrapper",
+  "description": "The Engagement Lab's library for web server/keystone instance initialization.",
+  "version": "0.0.1",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/engagementgamelab/el-bootstrapper.git"
+  },
+  "dependencies": {
+    "app-module-path": "^2.2.0",
+    "colors": "1.3.2",
+    "connect-mongostore": "^0.1.4",
+    "express": "^4.16.4",
+    "keystone": "git://github.com/engagementgamelab/keystone.git",
+    "node-sass-middleware": "^0.11.0",
+    "lodash": "^4.17.11",
+    "validator": "latest",
+    "winston": "^3.1.0"
+  }
+}
