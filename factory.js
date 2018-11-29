@@ -48,8 +48,21 @@
 		'frame guard': false,
 		'auto update': true,
 		'session': true,
-		'auth': false,
-		// 'user model': 'User',
+		'auth':  function(req, res, next) {
+			let email = req.session.passport.user.emails[0].value;	
+			global.keystone.list('User').model.find({ email: email })
+			.exec((err, result) => {
+						
+				if(result.length < 1) {
+					res.redirect('/');
+					return;
+				}					
+				req.user = {get: () => { return result[0].name; }};
+				next();
+
+			});
+		},
+		'user model': 'User',
 		'locals': {
 			
 			_: require('lodash'),
@@ -120,6 +133,7 @@
 
 	// Configure Admin UI
 	keystoneInst.set('nav', siteConfig.admin_nav);
+ 	keystoneInst.set('admin path', 'cms');
 	if(siteConfig.admin_nav !== undefined)
 		keystoneInst.set('nav', siteConfig.admin_nav);
 
