@@ -1,80 +1,66 @@
 /*!
- * Engagement Lab Site Framework
- * Developed by Engagement Lab, 2016
+ * Engagement Lab Site Bootsrapper
+ * Developed by Engagement Lab, 2016-18
  * ==============
-*/
+ */
 'use strict';
 
-var FrameworkMiddleware = (function() { 
-
-	var url = require('url')
+var AppMiddleware = (function () {
 
 	/**
-		Initializes the standard view locals
+		Handle CMS auth via Auth0 and passport
 	*/
-	this.initLocals = function(req, res, next) {
+	this.authentication = {
 
-    var locals = res.locals;
-    locals.user = req.user;
+		// Perform the login, after login Auth0 will redirect to callback
+		login: require('passport').authenticate('auth0', { scope: 'openid email profile' }),
 
-    next();
+		// Handle Auth0 callback and direct to CMS backend if success
+		callback: (req, res, next) => {
+				require('passport').authenticate('auth0', function (err, user, info) {
+
+				if (err) {
+					return next(err);
+				}
+				if (!user) {
+					return res.redirect('/');
+				}
+
+				req.logIn(user, function (err) {
+					if (err) {
+						return next(err);
+					}
+					const returnTo = req.session.returnTo;
+					delete req.session.returnTo;
+
+					res.redirect(returnTo || '/cms');
+				});
+
+			})(req, res, next);
+		}
 
 	};
 
-	/**
-	    Inits the error handler functions into `req`
-	*/
-	this.initErrorHandlers = function(req, res, next) {
-	    
-	    res.err = function(err, title, message) {
-	        res.status(500).render('errors/500', {
-	            err: err,
-	            errorTitle: title,
-	            errorMsg: message
-	        });
-	    };
-	    
-	    res.notfound = function(title, message) {
-	        res.status(404).render('errors/404', {
-	            errorTitle: title,
-	            errorMsg: message
-	        });
-	    };
-	    
-	    next();
-	    
-	};
-		
 	/**
 	 * Common middleware for URL whitelisting. Prevents clickjacking.
 	 * @param {Array} domains to allow as site masks, or embed-friendly domains.
 	 */
-	this.urlWhitelist = function(domains) {
+	this.urlWhitelist = function (domains) {
 
 		console.log('Using URL whitelist: '.white + domains.join(',').bgWhite.black);
 
-	 	return function(req, res, next) {
+		return function (req, res, next) {
 
-	    // Allow certain domains to frame site
-	    res.setHeader('Content-Security-Policy', 'frame-ancestors ' + domains.join(' '));
-	    res.setHeader('Access-Control-Allow-Origin', domains.join(' '));
+			// Allow certain domains to frame site
+			res.setHeader('Content-Security-Policy', 'frame-ancestors ' + domains.join(' '));
+			res.setHeader('Access-Control-Allow-Origin', domains.join(' '));
 
-	    next();
-	  
-	  };
+			next();
 
-	};
-
-	this.checkDebug = function(req, res, next) {
-
-			// if(req.app.settings.env === 'development' && req.url.indexOf('#data') !== -1)
-			// 	locals.datadump = true;
-
-	    next();
+		};
 
 	};
-
 
 });
 
-module.exports = FrameworkMiddleware;
+module.exports = AppMiddleware;

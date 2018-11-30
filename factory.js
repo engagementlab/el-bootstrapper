@@ -1,5 +1,5 @@
 /*!
- * Engagement Lab Site Framework
+ * Engagement Lab Site Bootsrapper
  * Developed by Engagement Lab, 2016-2018
  * ==============
 */
@@ -21,7 +21,7 @@
  var SiteFactory = (function(params, vars, callback) { 
 
 	// Global dependencies
-	const FrameworkMiddleware = require('./middleware'), 
+	const AppMiddleware = require('./middleware'), 
 			colors = require('colors'),			
 			compression = require('compression'),
 			express = require('express');
@@ -57,7 +57,7 @@
 					res.redirect('/');
 					return;
 				}					
-				req.user = {get: () => { return result[0].name; }};
+				req.user = {get: () => { return result[0]; }};
 				next();
 
 			});
@@ -137,12 +137,18 @@
 	if(siteConfig.admin_nav !== undefined)
 		keystoneInst.set('nav', siteConfig.admin_nav);
 
-	var middleware = new FrameworkMiddleware();
+	var middleware = new AppMiddleware();
 	
 	if(siteConfig.allowed_domains !== undefined)
 		keystoneInst.pre('routes', middleware.urlWhitelist(siteConfig.allowed_domains));
 	else
 		keystoneInst.set('cors allow origin', true);
+
+	// CMS auth middleware
+	appInst.get('/keystone', middleware.authentication.login, (req, res) => {
+		res.redirect('/');
+	});
+	appInst.get('/callback', middleware.authentication.callback);
 
 	// keystoneInst.start
 	keystoneInst.openDatabaseConnection(() => {

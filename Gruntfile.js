@@ -1,6 +1,6 @@
 /*!
- * Engagement Lab Site Framework
- * Developed by Engagement Lab, 2016
+ * Engagement Lab Site Bootsrapper
+ * Developed by Engagement Lab, 2016-18
  * ==============
  * Gruntfile.js
  * Grunt task config.
