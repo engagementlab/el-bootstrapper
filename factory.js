@@ -49,6 +49,11 @@
 		'auto update': true,
 		'session': true,
 		'auth':  function(req, res, next) {
+			if(!req.session.passport) {
+				res.redirect('/keystone');
+				return;
+			}
+
 			let email = req.session.passport.user.emails[0].value;	
 			global.keystone.list('User').model.find({ email: email })
 			.exec((err, result) => {
