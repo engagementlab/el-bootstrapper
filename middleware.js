@@ -17,7 +17,12 @@ var AppMiddleware = (function () {
 
 		// Handle Auth0 callback and direct to CMS backend if success
 		callback: (req, res, next) => {
-				require('passport').authenticate('auth0', function (err, user, info) {
+			if(process.env.NODE_ENV === 'development') {
+				res.redirect('/cms');
+				return;
+			}
+
+			require('passport').authenticate('auth0', function (err, user, info) {
 
 				if (err) {
 					return next(err);
@@ -35,8 +40,10 @@ var AppMiddleware = (function () {
 
 					res.redirect(returnTo || '/cms');
 				});
+			
 
 			})(req, res, next);
+			
 		}
 
 	};

@@ -49,12 +49,20 @@
 		'auto update': true,
 		'session': true,
 		'auth':  function(req, res, next) {
-			if(!req.session.passport) {
-				res.redirect('/keystone');
-				return;
+			let email;
+			// Bypass login for dev
+			if(process.env.NODE_ENV === 'development') {
+				email = process.env.DEV_EMAIL;
+			}
+			else {
+				if(!req.session.passport) {
+					res.redirect('/keystone');
+					return;
+				}
+
+				email = req.session.passport.user.emails[0].value;	
 			}
 
-			let email = req.session.passport.user.emails[0].value;	
 			global.keystone.list('User').model.find({ email: email })
 			.exec((err, result) => {
 						
@@ -150,6 +158,12 @@
 		keystoneInst.set('cors allow origin', true);
 
 	// CMS auth middleware
+	// Bypass login for dev
+	if(process.env.NODE_ENV === 'development') {
+		appInst.get('/keystone', (req, res) => {
+			res.redirect('/callback');
+		});
+	}
 	appInst.get('/keystone', middleware.authentication.login, (req, res) => {
 		res.redirect('/');
 	});
