@@ -5,7 +5,7 @@
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/engagementgamelab/el-bootstrapper.git"
+    "url": "git+https://github.com/engagementlab/el-bootstrapper.git"
   },
   "dependencies": {
     "app-module-path": "^2.2.0",
