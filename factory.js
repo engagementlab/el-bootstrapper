@@ -29,11 +29,23 @@
 	const siteConfig = params.config, 
 			moduleRoot = params.root,
 			appInst = params.app,
-			logger = require('winston'),
-			keystoneInst = require('keystone');
-
+			winston = require('winston'),
+			keystoneInst = require('keystone'),
+			adminPath = 'cms';
+			const logger = winston.createLogger({
+				level: 'info',
+				format: winston.format.prettyPrint(),
+				transports: [
+				  new winston.transports.Console()
+				]
+			  });
+			  
 	// Cache reference to keystone from bootstrapper globally
 	global.keystone = keystoneInst;
+
+	// If not on dev use specified admin path, if defined
+	if(process.env.NODE_ENV !== 'development' && siteConfig.adminPath)
+		adminPath = siteConfig.adminPath;
 
 	logger.info('Initializing ' + colors.cyan.underline(siteConfig.name).underline);
 
@@ -108,23 +120,10 @@
 			keystoneInst.set(key, vars[key])
 	}
 
-	// keystoneInst.initDatabaseConfig();
-	keystoneInst.initExpressSession();
-
-	appInst.use(compression());	
-	appInst.use('/cms', keystoneInst.Admin.Server.createStaticRouter(keystoneInst));
-
-	appInst.use(keystoneInst.get('session options').cookieParser);
-
-	appInst.use(keystoneInst.expressSession);
-	appInst.use(keystoneInst.session.persist);
-	appInst.use(require('connect-flash')());
-
-	appInst.use('/cms', keystoneInst.Admin.Server.createDynamicRouter(keystoneInst));
+	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createDynamicRouter(keystoneInst));
 
 	// Used only for production, otherwise sessions are stored in-memory
 	if (process.env.NODE_ENV === 'production') {
-
 		keystoneInst.set('session store', 'connect-mongo');
 		keystoneInst.set('session store options', {
 			"db": {
@@ -136,6 +135,18 @@
 		});
 
 	}
+	else
+		appInst.use(require('connect-flash')());
+
+
+	keystoneInst.initExpressSession(require('mongoose'));
+	appInst.use(keystoneInst.expressSession);
+	appInst.use(keystoneInst.session.persist);
+
+	appInst.use(compression());	
+	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createStaticRouter(keystoneInst));
+
+	appInst.use(keystoneInst.get('session options').cookieParser);
 
 	keystoneInst.import('models');
 	keystoneInst.set('wysiwyg additional buttons', 'blockquote');
@@ -145,8 +156,7 @@
 	appInst.use(require(moduleRoot + 'routes'));
 
 	// Configure Admin UI
-	keystoneInst.set('nav', siteConfig.admin_nav);
- 	keystoneInst.set('admin path', 'cms');
+ 	keystoneInst.set('admin path', adminPath);
 	if(siteConfig.admin_nav !== undefined)
 		keystoneInst.set('nav', siteConfig.admin_nav);
 

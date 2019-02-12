@@ -25,14 +25,17 @@ var AppMiddleware = (function () {
 			require('passport').authenticate('auth0', function (err, user, info) {
 
 				if (err) {
+					console.error('Auth error!', err)
 					return next(err);
 				}
 				if (!user) {
+					console.error('No user!');
 					return res.redirect('/');
 				}
 
 				req.logIn(user, function (err) {
 					if (err) {
+						console.error('Login error', err);
 						return next(err);
 					}
 					const returnTo = req.session.returnTo;
