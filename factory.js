@@ -30,8 +30,8 @@
 			moduleRoot = params.root,
 			appInst = params.app,
 			winston = require('winston'),
-			keystoneInst = require('keystone'),
-			adminPath = 'cms';
+			keystoneInst = require('keystone');
+	let adminPath = 'cms';
 			const logger = winston.createLogger({
 				level: 'info',
 				format: winston.format.prettyPrint(),
