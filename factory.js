@@ -105,10 +105,18 @@
 
 	});
 
-	appInst.use(express.static(__dirname  + '/../public'));
-	appInst.use(express.static(moduleRoot + '/public'));
-
-	appInst.set('views', moduleRoot + 'templates/views/');
+	var middleware = new AppMiddleware();
+	// CMS auth middleware
+	// Bypass login for dev
+	if(process.env.NODE_ENV === 'development') {
+		appInst.get('/keystone', (req, res) => {
+			res.redirect('/callback');
+		});
+	}
+	appInst.get('/keystone', middleware.authentication.login, (req, res) => {
+		res.redirect('/');
+	});
+	appInst.get('/callback', middleware.authentication.callback);
 
 	// Load this site's models
 	keystoneInst.import('models');
@@ -119,7 +127,6 @@
 			keystoneInst.set(key, vars[key])
 	}
 
-	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createDynamicRouter(keystoneInst));
 
 	// Used only for production, otherwise sessions are stored in-memory
 	if (process.env.NODE_ENV === 'production') {
@@ -144,6 +151,7 @@
 
 	appInst.use(compression());	
 	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createStaticRouter(keystoneInst));
+	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createDynamicRouter(keystoneInst));
 
 	// appInst.use(keystoneInst.get('session options').cookieParser);
 	keystoneInst.import('models');
@@ -157,25 +165,11 @@
  	keystoneInst.set('admin path', adminPath);
 	if(siteConfig.admin_nav !== undefined)
 		keystoneInst.set('nav', siteConfig.admin_nav);
-
-	var middleware = new AppMiddleware();
 	
 	if(siteConfig.allowed_domains !== undefined)
 		keystoneInst.pre('routes', middleware.urlWhitelist(siteConfig.allowed_domains));
 	else
 		keystoneInst.set('cors allow origin', true);
-
-	// CMS auth middleware
-	// Bypass login for dev
-	if(process.env.NODE_ENV === 'development') {
-		appInst.get('/keystone', (req, res) => {
-			res.redirect('/callback');
-		});
-	}
-	appInst.get('/keystone', middleware.authentication.login, (req, res) => {
-		res.redirect('/');
-	});
-	appInst.get('/callback', middleware.authentication.callback);
 
 	// console.log(appInst.Router().stack)
 	keystoneInst.openDatabaseConnection(() => {

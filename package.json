@@ -1,7 +1,7 @@
 {
   "name": "el-bootstrapper",
   "description": "The Engagement Lab's library for web server/keystone instance initialization.",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "app.js",
   "repository": {
     "type": "git",

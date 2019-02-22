@@ -69,7 +69,6 @@ module.exports = {
           callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3000/callback'
         },
         function (accessToken, refreshToken, extraParams, profile, done) {
-          console.log(profile)
           return done(null, profile);
         });
 
