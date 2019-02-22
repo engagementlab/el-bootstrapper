@@ -43,8 +43,12 @@
 	global.keystone = keystoneInst;
 
 	// If not on dev use specified admin path, if defined
-	if(process.env.NODE_ENV !== 'development' && siteConfig.adminPath)
-		adminPath = siteConfig.adminPath;
+	if(process.env.NODE_ENV !== 'development') {
+		if(siteConfig.adminPath)
+			adminPath = siteConfig.adminPath;
+
+		siteConfig.name += ' (' + ((process.env.NODE_ENV === 'staging') ? 'QA': 'Production') +  ')';
+	}
 
 	logger.info('Initializing ' + colors.cyan.underline(siteConfig.name).underline);
 
