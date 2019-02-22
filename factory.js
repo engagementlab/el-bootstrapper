@@ -24,8 +24,9 @@
 	const AppMiddleware = require('./middleware'), 
 			colors = require('colors'),			
 			compression = require('compression'),
-			express = require('express');
-
+			express = require('express'),
+			session = require('express-session'),
+			MongoStore = require('connect-mongo')(session);
 	const siteConfig = params.config, 
 			moduleRoot = params.root,
 			appInst = params.app,
@@ -120,6 +121,22 @@
 			keystoneInst.set(key, vars[key])
 	}
 
+
+	// session
+	appInst.set('trust proxy') // trust first proxy
+	appInst.use(session({
+	  secret: process.env.COOKIE_SECRET,
+	  resave: true,
+	  saveUninitialized: false,
+	  store: new MongoStore({
+		url: 'mongodb://localhost/' + siteConfig.database
+	  }),
+	  cookie: {
+		secure: true
+	  }
+	}));
+
+
 	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createDynamicRouter(keystoneInst));
 
 	// Used only for production, otherwise sessions are stored in-memory
@@ -135,19 +152,18 @@
 		});
 
 	}
-	else
-		appInst.use(require('connect-flash')());
+	// else
+	// 	appInst.use(require('connect-flash')());
 
 
 	keystoneInst.initExpressSession(require('mongoose'));
 	appInst.use(keystoneInst.expressSession);
-	appInst.use(keystoneInst.session.persist);
+	// appInst.use(keystoneInst.session.persist);
 
 	appInst.use(compression());	
 	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createStaticRouter(keystoneInst));
 
-	appInst.use(keystoneInst.get('session options').cookieParser);
-
+	// appInst.use(keystoneInst.get('session options').cookieParser);
 	keystoneInst.import('models');
 	keystoneInst.set('wysiwyg additional buttons', 'blockquote');
 	
@@ -179,7 +195,7 @@
 	});
 	appInst.get('/callback', middleware.authentication.callback);
 
-	// keystoneInst.start
+	// console.log(appInst.Router().stack)
 	keystoneInst.openDatabaseConnection(() => {
 		if(callback) callback();
 	});
