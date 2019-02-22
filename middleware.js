@@ -29,7 +29,7 @@ var AppMiddleware = (function () {
 					return next(err);
 				}
 				if (!user) {
-					console.error('No user!');
+					console.error('No user!',info);
 					return res.redirect('/');
 				}
 

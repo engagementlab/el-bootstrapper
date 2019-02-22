@@ -24,9 +24,7 @@
 	const AppMiddleware = require('./middleware'), 
 			colors = require('colors'),			
 			compression = require('compression'),
-			express = require('express'),
-			session = require('express-session'),
-			MongoStore = require('connect-mongo')(session);
+			express = require('express');
 	const siteConfig = params.config, 
 			moduleRoot = params.root,
 			appInst = params.app,
@@ -120,22 +118,6 @@
 		for(var key in vars)
 			keystoneInst.set(key, vars[key])
 	}
-
-
-	// session
-	appInst.set('trust proxy') // trust first proxy
-	appInst.use(session({
-	  secret: process.env.COOKIE_SECRET,
-	  resave: true,
-	  saveUninitialized: false,
-	  store: new MongoStore({
-		url: 'mongodb://localhost/' + siteConfig.database
-	  }),
-	  cookie: {
-		secure: true
-	  }
-	}));
-
 
 	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createDynamicRouter(keystoneInst));
 

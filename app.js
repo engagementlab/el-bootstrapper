@@ -11,7 +11,10 @@
 const SiteFactory = require('./factory'),
   bodyParser = require('body-parser'),
   passport = require('passport'),
-  Auth0Strategy = require('passport-auth0');
+  Auth0Strategy = require('passport-auth0'),
+  session = require('express-session'),
+  cookieParser = require('cookie-parser'),
+  MongoStore = require('connect-mongo')(session);
 
 module.exports = {
 
@@ -35,6 +38,7 @@ module.exports = {
         // });
 
       // support json encoded bodies
+      expressApp.use(cookieParser());
       expressApp.use(bodyParser.json());
       expressApp.use(bodyParser.urlencoded({
         extended: true
@@ -42,6 +46,17 @@ module.exports = {
 
       // Enable view template compilation caching
       expressApp.enable('view cache');
+
+      // session
+      expressApp.set('trust proxy') // trust first proxy
+      expressApp.use(session({
+        secret: process.env.COOKIE_SECRET,
+        resave: true,
+        saveUninitialized: false,
+        store: new MongoStore({
+          url: 'mongodb://localhost/' + configData.database
+        })
+      }));
 
       expressApp.use(passport.initialize());
       expressApp.use(passport.session());
@@ -54,6 +69,7 @@ module.exports = {
           callbackURL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3000/callback'
         },
         function (accessToken, refreshToken, extraParams, profile, done) {
+          console.log(profile)
           return done(null, profile);
         });
 
