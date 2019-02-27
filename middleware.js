@@ -44,7 +44,6 @@ var AppMiddleware = (function () {
 					res.redirect(returnTo || '/cms');
 				});
 			
-
 			})(req, res, next);
 			
 		}

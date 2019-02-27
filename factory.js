@@ -24,21 +24,34 @@
 	const AppMiddleware = require('./middleware'), 
 			colors = require('colors'),			
 			compression = require('compression'),
-			express = require('express');
-	const siteConfig = params.config, 
+			siteConfig = params.config, 
 			moduleRoot = params.root,
 			appInst = params.app,
 			winston = require('winston'),
 			keystoneInst = require('keystone');
+
+	const logFormat = winston.format.combine(
+		winston.format.colorize(),
+		winston.format.timestamp(),
+		winston.format.align(),
+		winston.format.printf((info) => {
+		  const {
+			timestamp, level, message, ...args
+		  } = info;
+	
+		  const ts = timestamp.slice(0, 19).replace('T', ' ');
+		  return `${ts} [${level}]: ${message} ${Object.keys(args).length ? JSON.stringify(args, null, 2) : ''}`;
+		}),
+	  );
+	  
+	  const logger = winston.createLogger({
+		  level: 'info',
+		  format: logFormat,
+		  transports: [
+			  new winston.transports.Console()
+			]
+		});
 	let adminPath = 'cms';
-			const logger = winston.createLogger({
-				level: 'info',
-				format: winston.format.prettyPrint(),
-				transports: [
-				  new winston.transports.Console()
-				]
-			  });
-			  
 	// Cache reference to keystone from bootstrapper globally
 	global.keystone = keystoneInst;
 
@@ -50,7 +63,7 @@
 		siteConfig.name += ' (' + ((process.env.NODE_ENV === 'staging') ? 'QA': 'Production') +  ')';
 	}
 
-	logger.info('Initializing ' + colors.cyan.underline(siteConfig.name).underline);
+	logger.info('Initializing ' + colors.bold.bgYellow.black.underline(siteConfig.name).underline + ' backend server...');
 
 	// Init the keystone instance when it is opened
 	keystoneInst.init({
@@ -145,19 +158,19 @@
 		});
 
 	}
-	// else
-	// 	appInst.use(require('connect-flash')());
+	else
+		appInst.use(require('connect-flash')());
 
 
+	// Session implementation
 	keystoneInst.initExpressSession(require('mongoose'));
 	appInst.use(keystoneInst.expressSession);
-	// appInst.use(keystoneInst.session.persist);
 
+	// Admin route mount
 	appInst.use(compression());	
 	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createStaticRouter(keystoneInst));
 	appInst.use('/'+adminPath, keystoneInst.Admin.Server.createDynamicRouter(keystoneInst));
 
-	// appInst.use(keystoneInst.get('session options').cookieParser);
 	keystoneInst.import('models');
 	keystoneInst.set('wysiwyg additional buttons', 'blockquote');
 	
@@ -175,9 +188,12 @@
 	else
 		keystoneInst.set('cors allow origin', true);
 
-	// console.log(appInst.Router().stack)
 	keystoneInst.openDatabaseConnection(() => {
 		if(callback) callback();
+		logger.info(colors.bgBlack.yellow('Backend server initialized successfully!'));
+		logger.info(colors.bgWhite.black('> CMS path is at /' + adminPath));
+		logger.info(colors.bgWhite.black("> Using database '" + siteConfig.database + "'"));
+
 	});
 		
 });

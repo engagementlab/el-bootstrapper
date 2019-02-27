@@ -27,16 +27,6 @@ module.exports = {
       if (err) throw err;
       var configData = JSON.parse(data);
 
-      // expressApp.get('*', function(req, res, next) {
-      //   console.log(res.headers)
-      //   next();
-      //   });
-
-        // expressApp.get('/cms/js/fields.js', function(req, res, next) {
-        // console.log('fields')
-        // next();
-        // });
-
       // support json encoded bodies
       expressApp.use(cookieParser());
       expressApp.use(bodyParser.json());
