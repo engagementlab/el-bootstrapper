@@ -63,7 +63,7 @@ In your Node app main file (e.g. _app.js_, using [dotenv](https://www.npmjs.com/
 if(process.env.NODE_ENV !== 'test')
 	require('dotenv').load();
 
-const bootstrap = require('el-bootstrapper'), 
+const bootstrap = require('@engagementlab/el-bootstrapper'), 
       express = require('express');
 
 let app = express();
