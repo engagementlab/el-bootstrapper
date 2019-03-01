@@ -25,7 +25,15 @@ module.exports = {
     }, (err, data) => {
 
       if (err) throw err;
-      var configData = JSON.parse(data);
+      let configData = JSON.parse(data),
+          sesh = session({
+                  secret: process.env.COOKIE_SECRET,
+                  resave: true,
+                  saveUninitialized: false,
+                  store: new MongoStore({
+                    url: 'mongodb://localhost/' + configData.database
+                  })
+                });
 
       // support json encoded bodies
       expressApp.use(cookieParser());
@@ -39,14 +47,7 @@ module.exports = {
 
       // session
       expressApp.set('trust proxy') // trust first proxy
-      expressApp.use(session({
-        secret: process.env.COOKIE_SECRET,
-        resave: true,
-        saveUninitialized: false,
-        store: new MongoStore({
-          url: 'mongodb://localhost/' + configData.database
-        })
-      }));
+      expressApp.use(sesh);
 
       expressApp.use(passport.initialize());
       expressApp.use(passport.session());
@@ -76,7 +77,8 @@ module.exports = {
       new SiteFactory({
           config: configData,
           root: rootPath,
-          app: expressApp
+          app: expressApp,
+          session: sesh
         },
         keystoneOptions,
         () => {
