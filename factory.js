@@ -144,25 +144,7 @@
 			keystoneInst.set(key, vars[key])
 	}
 
-
-	// Used only for production, otherwise sessions are stored in-memory
-	// if (process.env.NODE_ENV === 'production') {
-		// keystoneInst.set('session store', params.session);
-	// 	keystoneInst.set('session store options', {
-	// 		"db": {
-	// 			"name": siteConfig.database,
-	// 			"servers": [
-	// 				{ "host": "127.0.0.1", "port": 27017 }
-	// 			]
-	// 		}
-	// 	});
-
-	// }
-	// else
-		// appInst.use(require('connect-flash')());
-
-
-	// Session implementation
+	// Session implementation (created when app mounted, via connect-mongo)
 	keystoneInst.initExpressSession(params.session);
 	appInst.use(keystoneInst.expressSession);
 
