@@ -1,7 +1,7 @@
 {
   "name": "@engagementlab/el-bootstrapper",
   "description": "The Engagement Lab's library for web server/keystonejs CMS instance initialization.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "app.js",
   "repository": {
     "type": "git",
