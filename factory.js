@@ -71,7 +71,7 @@
 		'brand': siteConfig.name,
 		'module root': moduleRoot,
 		'model prefix': (siteConfig.db_prefix !== undefined) ? siteConfig.db_prefix : null,
-		'mongo': 'mongodb://localhost/' + siteConfig.database,
+		'mongo': params.dbPath,
 
 		'frame guard': false,
 		'auto update': true,

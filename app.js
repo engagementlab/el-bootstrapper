@@ -25,13 +25,14 @@ module.exports = {
     }, (err, data) => {
 
       if (err) throw err;
+      let mongoAddress = process.env.MONGO_ADDRESS || 'localhost';
       let configData = JSON.parse(data),
           sesh = session({
                   secret: process.env.COOKIE_SECRET,
                   resave: true,
                   saveUninitialized: false,
                   store: new MongoStore({
-                    url: 'mongodb://localhost/' + configData.database
+                    url: `mongodb://${mongoAddress}/${configData.database}`
                   })
                 });
 
@@ -78,7 +79,8 @@ module.exports = {
           config: configData,
           root: rootPath,
           app: expressApp,
-          session: sesh
+          session: sesh,
+          dbPath: `mongodb://${mongoAddress}/${configData.database}`
         },
         keystoneOptions,
         () => {
