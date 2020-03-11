@@ -32,7 +32,7 @@ module.exports = {
         resave: true,
         saveUninitialized: false,
         store: new MongoStore({
-          url: `mongodb://${mongoAddress}/${configData.database}`
+          url: mongoAddress
         })
       });
       
