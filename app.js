@@ -25,7 +25,7 @@ module.exports = {
     }, (err, data) => {
 
       if (err) throw err;
-      let mongoAddress = process.env.MONGO_ADDRESS || 'localhost';
+      let mongoAddress = process.env.DB_PATH || `mongodb://localhost/${configData.database}`;
       let configData = JSON.parse(data),
           sesh = session({
                   secret: process.env.COOKIE_SECRET,
