@@ -25,17 +25,17 @@ module.exports = {
     }, (err, data) => {
 
       if (err) throw err;
-      let mongoAddress = process.env.DB_PATH || `mongodb://localhost/${configData.database}`;
       let configData = JSON.parse(data),
-          sesh = session({
-                  secret: process.env.COOKIE_SECRET,
-                  resave: true,
-                  saveUninitialized: false,
-                  store: new MongoStore({
-                    url: `mongodb://${mongoAddress}/${configData.database}`
-                  })
-                });
-
+      mongoAddress = process.env.DB_PATH || `mongodb://localhost/${configData.database}`;
+      sesh = session({
+        secret: process.env.COOKIE_SECRET,
+        resave: true,
+        saveUninitialized: false,
+        store: new MongoStore({
+          url: `mongodb://${mongoAddress}/${configData.database}`
+        })
+      });
+      
       // support json encoded bodies
       expressApp.use(cookieParser());
       expressApp.use(bodyParser.json());
@@ -80,7 +80,7 @@ module.exports = {
           root: rootPath,
           app: expressApp,
           session: sesh,
-          dbPath: `mongodb://${mongoAddress}/${configData.database}`
+          dbPath: mongoAddress
         },
         keystoneOptions,
         () => {
