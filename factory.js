@@ -67,7 +67,7 @@ var SiteFactory = (function (params, vars, callback) {
 	}
 
 	logger.info('Initializing ' + colors.bold.bgYellow.black.underline(siteConfig.name).underline + ' backend server...');
-	logger.info(`Using database string defined from ${process.env.MONGO_URI ? 'MONGO_URI' : 'configData.database'}`);
+	logger.info(`Using database string defined from ${(process.env.MONGO_URI || process.env.MONGO_URI_CI) ? 'MONGO_URI | MONGO_URI_CI' : 'configData.database'}`);
 
 	// Init the keystone instance when it is opened
 	keystoneInst.init({
