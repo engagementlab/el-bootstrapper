@@ -18,15 +18,27 @@ const SiteFactory = require('./factory'),
 
 module.exports = {
 
-  start: (configPath, expressApp, rootPath, keystoneOptions, callback) => {
+  /**
+   * Start boostrapper.
+   * @function
+   * @param {string} configPath - Path to config file
+   * @param {function} expressApp - Express app to mount on
+   * @param {string} rootPath - Path to app on disk
+   * @param {Array} keystoneOptions - Additional keystone config options
+   * @param {function} callback - Function to run after start
+   * @param {string} [dbUri] - (optional) Database connection string
+   *
+   */
+  start: (configPath, expressApp, rootPath, keystoneOptions, callback, dbUri) => {
 
+    console.log('dburi',dbUri)
     require('fs').readFile(configPath, {
       encoding: 'utf8'
     }, (err, data) => {
 
       if (err) throw err;
       let configData = JSON.parse(data),
-      mongoAddress = process.env.MONGO_URI || process.env.MONGO_URI_CI || `mongodb://localhost/${configData.database}`;
+      mongoAddress = process.env.MONGO_URI || dbUri || `mongodb://localhost/${configData.database}`;
       sesh = session({
         secret: process.env.COOKIE_SECRET,
         resave: true,
@@ -35,6 +47,7 @@ module.exports = {
           url: mongoAddress
         })
       });
+
       
       // support json encoded bodies
       expressApp.use(cookieParser());
