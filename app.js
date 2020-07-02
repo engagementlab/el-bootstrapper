@@ -31,7 +31,6 @@ module.exports = {
    */
   start: (configPath, expressApp, rootPath, keystoneOptions, callback, dbUri) => {
 
-    console.log('dburi',dbUri)
     require('fs').readFile(configPath, {
       encoding: 'utf8'
     }, (err, data) => {
