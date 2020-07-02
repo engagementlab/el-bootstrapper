@@ -9,21 +9,6 @@
 * Keystone admin panel is still entered via /keystone, but you're directed to /cms by default after login.
 * Replaces our deprecated [el-web-sdk](https://github.com/engagementlab/el-web-sdk).
 
-> **Known issue**
->
-> When logged into KeystoneJS admin panel, user logged in will show as:
-```json
-{
-    _id: user's id,
-    __v: 0,
-    email: 'user@domain.com',
-    password: hash from auth0,
-    isAdmin: true, 
-    name: { last: 'Last', first: 'First' } 
-}
-```
-> This is merely a visual bug for now.
-
 ### Install
 ```npm i --save @engagement-lab/el-bootstrapper```
 
